@@ -12,6 +12,7 @@ import { Pressable, StyleSheet, Text, View, Dimensions, Platform } from "react-n
 import { Image } from "expo-image";
 import * as FileSystem from "expo-file-system";
 import * as SplashScreen from "expo-splash-screen";
+import * as Speech from 'expo-speech';
 
 // ============================================================================
 // Configuration Constants
@@ -179,8 +180,21 @@ const CameraScreen = ({ cameraRef, onCapture }) => (
 /**
  * Result display component
  */
-const ResultScreen = ({ uri, emotion, onPlayAgain }) => (
-  <View style={styles.imageContainer}>
+const ResultScreen = ({ uri, emotion, onPlayAgain }) => {
+  useEffect(() => {
+    if (emotion) {
+      const message = EMOTIONS[emotion]?.message || "Let's try again!";
+      Speech.stop();
+    Speech.speak(message, {
+      rate: 0.7,
+      pitch: 1.3,
+      language: "en",
+    });
+    }
+  }, [emotion]);
+  
+  return (
+    <View style={styles.imageContainer}>
     <Image source={{ uri }} contentFit="cover" style={styles.image} />
     
     {emotion && (
@@ -210,7 +224,7 @@ const ResultScreen = ({ uri, emotion, onPlayAgain }) => (
       <Text style={styles.playAgainText}>Let's Play Again! 🎮</Text>
     </Pressable>
   </View>
-);
+);}
 
 // ============================================================================
 // Main Component

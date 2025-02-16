@@ -23,7 +23,7 @@ const CONFIG = {
   SPEECH: {
     LANGUAGE: 'en',
     PITCH: 1.6,
-    RATE: 0.5,
+    RATE: 0.6,
   },
   AUDIO: {
     SAMPLE_RATE: 16000,
