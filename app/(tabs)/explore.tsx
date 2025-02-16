@@ -301,7 +301,7 @@ const ErrorMessage = ({ message }) => (
 
 const TranscriptionView = ({ transcription }) => (
   <View style={styles.transcriptionContainer}>
-    <Text style={styles.label}>Your Speech:</Text>
+    <Text style={styles.label}>Your Sentence:</Text>
     <Text style={styles.transcriptionText}>{transcription}</Text>
   </View>
 );
