@@ -5,11 +5,12 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import Constants from "expo-constants";
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { Button, Pressable, StyleSheet, Text, View, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { AntDesign, Feather, FontAwesome6 } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
+import * as SplashScreen from "expo-splash-screen";
 
 const { GOOGLE_CLOUD_VISION_API_KEY } = Constants.expoConfig?.extra || {};
 
@@ -23,6 +24,33 @@ export default function App() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [recording, setRecording] = useState(false);
   const [emotion, setEmotion] = useState<string | null>(null);
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  useEffect(() => {
+    async function prepare() {
+      try {
+        // Simulate loading resources (can include font/image loading)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        // Mark the app as ready to hide the splash screen
+        setAppIsReady(true);
+      }
+    }
+
+    // Prevent splash screen auto hide
+    SplashScreen.preventAutoHideAsync();
+
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(() => {
+    if (appIsReady) {
+      // Hide splash screen when the app is ready
+      SplashScreen.hide();
+    }
+  }, [appIsReady]);
 
   if (!permission) return null;
   if (!permission.granted) {
@@ -136,7 +164,7 @@ export default function App() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={onLayoutRootView}>
       {/* Back Button to Take Another Picture */}
       {uri && (
         <Pressable onPress={() => setUri(null)} style={styles.backButton}>
@@ -218,4 +246,3 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
-
