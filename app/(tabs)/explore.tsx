@@ -1,102 +1,174 @@
-import { useState } from "react";
-import { StyleSheet, View, TextInput, Button, Text } from "react-native";
-import Constants from "expo-constants";
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import Constants from 'expo-constants';
 
-// ✅ Ensure variables are loaded correctly
-const projectId = Constants.expoConfig?.extra?.DIALOGFLOW_PROJECT_ID;
-const privateKey = Constants.expoConfig?.extra?.DIALOGFLOW_PRIVATE_KEY?.replace(/\\n/g, "\n");
-const clientEmail = Constants.expoConfig?.extra?.DIALOGFLOW_CLIENT_EMAIL;
+export default function App() {
+  const [question, setQuestion] = useState('');
+  const [response, setResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Get API key from Constants
+  const GEMINI_API_KEY = Constants.expoConfig?.extra?.geminiApiKey;
 
-export default function TabTwoScreen() {
-  const [inputText, setInputText] = useState("");
-  const [responseText, setResponseText] = useState("");
-
-  const sendMessageToDialogflow = async () => {
-    const sessionId = "123456";
-
-    const url = `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/sessions/${sessionId}:detectIntent`;
-
-    const requestBody = {
-      queryInput: {
-        text: {
-          text: inputText,
-          languageCode: "en",
-        },
-      },
-    };
-
+  const askGemini = async () => {
+    if (!question.trim()) return;
+    
+    setIsLoading(true);
     try {
-      const response = await fetch(url, {
-        method: "POST",
+      console.log('API Key available:', !!GEMINI_API_KEY);
+      
+      if (!GEMINI_API_KEY) {
+        throw new Error('API key is not configured');
+      }
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${privateKey}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `You are helping a young child (Age 2-8) with ASD understand emotions. 
+                     The child asks: ${question}
+                     
+                     Please respond with a simple explanation that:
+                     - Uses concrete examples
+                     - Avoids idioms or abstract concepts
+                     - Uses short, clear sentences
+                     - Focuses on visual or physical signs of emotions
+                     - Provides practical ways to respond to the emotion
+                     
+                     Keep the response under 3 sentences.`
+            }]
+          }]
+        })
       });
 
-      const result = await response.json();
-
-      // ✅ Ensure we have valid data from Dialogflow
-      if (result?.queryResult?.fulfillmentText) {
-        setResponseText(result.queryResult.fulfillmentText);
-      } else {
-        setResponseText("No response from Dialogflow.");
-        console.error("Dialogflow response error:", result);
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('API Error:', errorData);
+        throw new Error(`API request failed: ${response.status}`);
       }
+
+      const data = await response.json();
+      
+      if (!data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        throw new Error('Unexpected API response format');
+      }
+
+      const explanation = data.candidates[0].content.parts[0].text;
+      setResponse(explanation);
     } catch (error) {
-      console.error("Error sending message to Dialogflow:", error);
-      setResponseText("Error communicating with Dialogflow.");
+      console.error('Detailed error:', error);
+      setResponse(`Error: ${error.message}. Please check your configuration and try again.`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Dialogflow Chat</Text>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <View style={styles.content}>
+        <Text style={styles.title}>Emotion Helper</Text>
+        
+        <TextInput
+          style={styles.input}
+          placeholder="Ask about an emotion..."
+          value={question}
+          onChangeText={setQuestion}
+          multiline
+        />
 
-      {/* User Input Field */}
-      <TextInput
-        style={styles.input}
-        placeholder="Type a message..."
-        value={inputText}
-        onChangeText={setInputText}
-      />
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={askGemini}
+          disabled={isLoading}
+        >
+          <Text style={styles.buttonText}>
+            {isLoading ? 'Thinking...' : 'Ask Question'}
+          </Text>
+        </TouchableOpacity>
 
-      {/* Send Button */}
-      <Button title="Send" onPress={sendMessageToDialogflow} />
+        {isLoading && <ActivityIndicator size="large" color="#6200ee" />}
 
-      {/* Response Display */}
-      <Text style={styles.response}>{responseText}</Text>
-    </View>
+        {response ? (
+          <View style={styles.responseContainer}>
+            <Text style={styles.responseText}>{response}</Text>
+          </View>
+        ) : null}
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    padding: 20,
+    backgroundColor: '#f5f5f5',
   },
-  heading: {
+  content: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60,
+    alignItems: 'center',
+  },
+  title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 20,
+    color: '#1a1a1a',
   },
   input: {
-    width: "100%",
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
+    width: '100%',
+    height: 100,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  response: {
+  button: {
+    backgroundColor: '#6200ee',
+    padding: 15,
+    borderRadius: 25,
+    width: '80%',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  responseContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '100%',
     marginTop: 20,
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "blue",
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  responseText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#1a1a1a',
   },
 });
