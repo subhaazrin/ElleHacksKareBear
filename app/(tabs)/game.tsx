@@ -310,9 +310,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4A4A4A',
     marginBottom: 10,
+    top: 20,
   },
   movesText: {
     fontSize: 20,
+    top: 20,
     color: '#666',
   },
   grid: {
