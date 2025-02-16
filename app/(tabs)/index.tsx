@@ -4,12 +4,14 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import { GOOGLE_CLOUD_VISION_API_KEY } from '@env';
+import Constants from "expo-constants";
 import { useRef, useState } from "react";
 import { Button, Pressable, StyleSheet, Text, View, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { AntDesign, Feather, FontAwesome6 } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
+
+const { GOOGLE_CLOUD_VISION_API_KEY } = Constants.expoConfig?.extra || {};
 
 const { width, height } = Dimensions.get("window");
 
