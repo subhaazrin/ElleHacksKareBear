@@ -249,8 +249,7 @@ export default function EmotionDetector() {
     const photo = await cameraRef.current?.takePictureAsync();
     if (photo?.uri) {
       setUri(photo.uri);
-      const detectedEmotion = ""
-       detectedEmotion = await analyzeEmotion(photo.uri);
+      const detectedEmotion = await analyzeEmotion(photo.uri);
       setEmotion(detectedEmotion);
     }
   };
