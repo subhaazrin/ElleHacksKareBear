@@ -1,6 +1,6 @@
 # KareBEar 🌈
 
-KareBEar is a mobile application designed to help children with Autism Spectrum Disorder (ASD) ages 2-8 understand and express emotions through interactive features and child-friendly interfaces.
+KareBEar is a mobile application and virtual plushie designed to help children with Autism Spectrum Disorder (ASD) ages 2-8 understand and express emotions through interactive features and child-friendly interfaces.
 
 ## Features 🎯
 
