@@ -1,109 +1,237 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet , ImageBackground} from 'react-native';
+import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+// Replace with your Google Cloud API key
+const GOOGLE_CLOUD_API_KEY = 'AIzaSyDq_oxnzSGAWHZQnT8nb0OtEezAit-auYw';
 
-export default function TabTwoScreen() {
+export default function SpeechToTextScreen() {
+  const [recording, setRecording] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcription, setTranscription] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState(''); // Add error state
+  
+
+  useEffect(() => {
+    return () => {
+      if (recording) {
+        stopRecording();
+      }
+    };
+  }, []);
+
+  async function startRecording() {
+    try {
+      setError(''); // Clear any previous errors
+      const permissionResponse = await Audio.requestPermissionsAsync();
+      if (permissionResponse.status !== 'granted') {
+        setError('Microphone permission not granted');
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      // Use specific recording options that match Google Cloud requirements
+      const recordingOptions = {
+        android: {
+          extension: '.wav',
+          outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_DEFAULT,
+          audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_DEFAULT,
+          sampleRate: 16000,
+          numberOfChannels: 1,
+          bitRate: 16000,
+        },
+        ios: {
+          extension: '.wav',
+          audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+          sampleRate: 16000,
+          numberOfChannels: 1,
+          bitRate: 16000,
+          linearPCM: true,
+          keepAudioActiveHint: true,
+        },
+      };
+
+      console.log('Starting recording...');
+      const { recording } = await Audio.Recording.createAsync(recordingOptions);
+      setRecording(recording);
+      setIsRecording(true);
+      console.log('Recording started');
+    } catch (err) {
+      console.error('Failed to start recording', err);
+      setError(`Recording failed: ${err.message}`);
+    }
+  }
+
+  async function stopRecording() {
+    try {
+      setIsRecording(false);
+      setIsProcessing(true);
+      setError(''); // Clear any previous errors
+      
+      console.log('Stopping recording...');
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      console.log('Recording URI:', uri);
+      
+      // Read the audio file as base64
+      console.log('Converting to base64...');
+      const base64Audio = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      console.log('Base64 length:', base64Audio.length);
+
+      // Call Google Cloud Speech-to-Text API
+      console.log('Calling Google API...');
+      const response = await fetch(`https://speech.googleapis.com/v1/speech:recognize?key=${GOOGLE_CLOUD_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          config: {
+            encoding: 'LINEAR16',
+            sampleRateHertz: 16000,
+            languageCode: 'en-US',
+            model: 'default',
+          },
+          audio: {
+            content: base64Audio,
+          },
+        }),
+      });
+
+      const responseText = await response.text();
+      console.log('API Response:', responseText);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}, response: ${responseText}`);
+      }
+
+      const data = JSON.parse(responseText);
+      if (data.results && data.results[0]) {
+        setTranscription(data.results[0].alternatives[0].transcript);
+      } else {
+        setTranscription('No speech detected');
+      }
+
+      // Clean up
+      await FileSystem.deleteAsync(uri);
+      setRecording(null);
+    } catch (err) {
+      console.error('Failed to process recording', err);
+      setError(`Processing failed: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    
+    <View style={styles.container}>
+      <ImageBackground 
+      source={require('./../../assets/images/KareBear.png')} // Replace with your image path
+      style={styles.bg}
+    ></ImageBackground>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          isRecording && styles.buttonRecording,
+          isProcessing && styles.buttonProcessing
+        ]}
+        onPress={isRecording ? stopRecording : startRecording}
+        disabled={isProcessing}
+      >
+        <Text style={styles.buttonText}>
+          {isProcessing ? 'Processing...' : 
+           isRecording ? 'Stop Recording' : 
+           'Start Recording'}
+        </Text>
+      </TouchableOpacity>
+
+      {error ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : null}
+
+      <View style={styles.transcriptionContainer}>
+        <Text style={styles.label}>Your Transcribed Speech Will Appear Here:</Text>
+        <Text style={styles.transcriptionText}>{transcription}</Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  bg:{
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    padding: 50,
+    ...StyleSheet.absoluteFillObject,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  container: {
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 100,
+    borderRightWidth:0,
+    borderBottomWidth:0,
+    borderWidth:0,
+    backgroundColor: '#fff',
+    resizeMode: 'cover',
+
+  },
+  button: {
+    backgroundColor: '#f9e6d8',
+    padding: 15,
+    borderRadius: 0,
+    width: 200,
+    alignItems: 'center',
+    fontFamily: 'Helvetica',
+  },
+  buttonRecording: {
+    backgroundColor: '#ffffff',
+
+  },
+  buttonProcessing: {
+    backgroundColor: '#ffffff',
+  },
+  buttonText: {
+    color: '#7a4f38',
+    fontSize: 18,
+    fontWeight: 'bold',
+
+  },
+  transcriptionContainer: {
+    marginTop: 40,
+    width: '100%',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  transcriptionText: {
+    fontSize: 18,
+    textAlign: 'center',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#7a4f38',
+    borderRadius: 5,
+    minHeight: 100,
+    fontFamily: 'Helvetica',
+  },
+  errorText: {
+    color: '#b9111e',
+    marginTop: 10,
+    textAlign: 'center',
+    fontFamily: 'Helvetica',
   },
 });
