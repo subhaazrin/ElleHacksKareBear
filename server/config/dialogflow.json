@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "fair-melody-451021-b9",
+  "private_key_id": "83604e75dd567daccf61c21de6c95cb27516ea69",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCaenTWDPmWkr9d\nTl4fDPjYewFpRz5lInKauU7kkA2p+MEJhyWtLtmlhZxC+6G+T6ZNDn0T7VASWvj2\nM7YFZQEeyIZvQQ0ASDtciZ4yaRFflhmSneSNKixFQ8BNNqiGS3q/m/HX3KCewYsR\nJYzuRA95aBzlxhQhRiYpY3wilbAv+fZYhWffh3rO564yHrTFe5LDa7EQ+zwfXVFb\nL7Mo4Y/unXOI6FWaF4qcwkQ5IkOsR++QveBCF+iI1mLM7kUDz/OuT0iu6tMpOhRY\nCETtsJEfvLti7llhoFMI3qAMA2uXtTvtqBEOXHzAHSHB0N/liOuWbDLnW3Dap1Y7\noJnFHLULAgMBAAECggEAAdoWonufVl3GANwFUYFPTmZocEGpZCmojrr1UNTP78oK\no7maCwcfwYCQ4gCwQgl5vedpj8lC3NAjDJiMGxPIkqeRbQNY9jg8y0bfEvhNfAQ0\nTvH+S8RF/u0+q0OiJjyraQv5Nz7u3K2x+W+mI95vAmPsIhkLeWak4yQigyug5Bep\n8Tq260zEo3kmAunom6EMz9pkDE4hksJqpzmm+CRjjpqv3agKhX79B9a4pNXSw5q1\nbM/HtN0fFv7t48Hsim1KZhj6Zq4SpWDSDfjLSHrRInmmO7gkYv/6foga/Brjdyo5\n1fE81Ta0If2F9wWL4WSdXZsQzZ/Sc2jeBWSPwaZ80QKBgQDKXtmM+HC+TNjKWCwm\n5UgevZQ+gQRQdJJKTO4O6uHNRjf0YgGyhBuc8nWsTsYpASCrFWeMvVsVZZRGQ5VI\nWjPhb6DAcBNmATTj8yjgaosbscpvy/M/upGxQ/II5hXkFADj9fCo1ljoru1+Y6wy\npYUcuXMq1HTqC8ZDd/KefvShWQKBgQDDaoXmoM9KD26+5x2csGoM31OfvFQmWogY\nqLZyBYMrzAzuzW82u4+UHboGvHtMRhkjZxGDpC7GSIGUHMuxfzJyrMz/nRJL/bn/\nJsumkXNZ2vSQARTqXBqisGsQgi5nBZjdSgVbCcmTMHhQiTRZT+2fAHUK4+J7w0M6\nNvHspqI5AwKBgQCh/xeLf31Q+Nc58yc046m94eh/uGuptAc/LyIKEwA6gJFeMe5F\n5vbrxjNogY6jWGG8UmAYC6SUFkKBlKw1xO9u8RrvsUf2CdU6/HWmX+OHgeUZZVwN\nkd361vczJGw1rcWgtkm1/hAiA5Xd7Q/1YwaRneqRSI1mpZJKhARV2C8f0QKBgAHw\nKofRDH1FjemizS5iqYqbJG8vJP6EY1krQzP6TgS/L1mm+/VlAtWLPe8XK3nkMBej\nzA6sMDKTQYXAi1ylUFDG2fmnCylpyNB5CAgM5UH84/QRrq1sYG9ApK8zO1aWPZ/k\nPg1bGX62OltCIRzJqCetj3ueKv7jPuVy6g9Yz78VAoGAJJpmXZoFXDWAU10qCElN\nvRwnP6x8E+UTdT962zOxcftJCFYU1GCxX4kpyeMAg1v+yJEGnxAmOZrEPq72Or5E\nmNmBA/vJpVJ5K2LA6xfFqVj56ZrLbR5QrOHel2j9jTHSTA9tYJcfZ0OEeIQKzt5T\ngsWPtdXqZBFm1HPGPAbq5ns=\n-----END PRIVATE KEY-----\n",
+  "client_email": "karebear@fair-melody-451021-b9.iam.gserviceaccount.com",
+  "client_id": "107813261949751811814",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/karebear%40fair-melody-451021-b9.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
