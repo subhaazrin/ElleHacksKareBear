@@ -135,7 +135,18 @@ export default function App() {
     </CameraView>
   );
 
-  return <View style={styles.container}>{uri ? renderPicture() : renderCamera()}</View>;
+  return (
+    <View style={styles.container}>
+      {/* Back Button to Take Another Picture */}
+      {uri && (
+        <Pressable onPress={() => setUri(null)} style={styles.backButton}>
+          <AntDesign name="arrowleft" size={32} color="white" />
+        </Pressable>
+      )}
+
+      {uri ? renderPicture() : renderCamera()}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -200,5 +211,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
   },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 1,
+  },
 });
-
