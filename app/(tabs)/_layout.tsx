@@ -91,7 +91,7 @@ export default function TabLayout() {
     borderWidth: 2,               // Defined border for visual separation
     shadowOpacity: 0.1,           // Subtle shadow for depth
     shadowRadius: 4,              // Shadow spread
-    verticalPadding: 10,          // Consistent vertical spacing
+    verticalPadding: 1,          // Consistent vertical spacing
   };
 
   return (
@@ -164,6 +164,21 @@ export default function TabLayout() {
             <TabBarIcon 
               size={TAB_BAR_CONFIG.iconSize}
               name="heart.fill"
+              color={color}
+              focused={focused}
+            />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="game"
+        options={{
+          title: 'Emotions Game',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon 
+              size={TAB_BAR_CONFIG.iconSize}
+              name="gamecontroller.fill"
               color={color}
               focused={focused}
             />
